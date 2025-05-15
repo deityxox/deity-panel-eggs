@@ -24,7 +24,7 @@ sudo rm /etc/nginx/sites-enabled/default
 nano /etc/nginx/sites-available/pelican.conf  
 
 <<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>>>>
-
+```
 server_tokens off;
 
 server {
@@ -90,7 +90,7 @@ server {
         deny all;
     }
 }
-
+´´´
 <<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 sudo ln -s /etc/nginx/sites-available/pelican.conf /etc/nginx/sites-enabled/pelican.conf
