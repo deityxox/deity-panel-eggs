@@ -113,8 +113,10 @@ mkdir /etc/pelican
 nano /etc/pelican/config.yml
 
 Paste > Edit this lines like this >
-   ``` cert: /etc/certs/fullchain.pem;
-    key: /etc/certs/privkey.pem;```
+   ``` 
+    cert: /etc/certs/fullchain.pem;
+    key: /etc/certs/privkey.pem;
+   ```
 Save & Exit
 
 
