@@ -89,7 +89,7 @@ server {
         deny all;
     }
 }
-´´´
+```
 
 sudo ln -s /etc/nginx/sites-available/pelican.conf /etc/nginx/sites-enabled/pelican.conf
 
