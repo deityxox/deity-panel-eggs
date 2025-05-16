@@ -2,6 +2,8 @@
 
 ---
 
+https://www.youtube.com/watch?v=tdEpa2bRfJk
+
 ## 🧰 1. Sunucu Hazırlığı
 
 ```bash
