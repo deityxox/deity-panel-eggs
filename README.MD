@@ -1,56 +1,49 @@
-# Pelican Panel Install
+# 🚀 Pelican Panel + Cloudflare Tunnel Kurulum Rehberi (Docker ile)
 
-```
+---
+
+## 🧰 1. Sunucu Hazırlığı
+
+```bash
 apt update -y && apt upgrade -y
-```
-
-```
 add-apt-repository ppa:ondrej/php
-```
-
-```
-apt install php8.4 php8.4-{gd,mysql,mbstring,bcmath,xml,curl,zip,intl,sqlite3,fpm}
-```
-
-```
+apt install php8.4 php8.4-{gd,mysql,mbstring,bcmath,xml,curl,zip,intl,sqlite3,fpm} -y
 apt install nginx -y
 ```
 
-```
+```bash
 sudo mkdir -p /var/www/pelican
 cd /var/www/pelican
-```
-
-```
 curl -L https://github.com/pelican-dev/panel/releases/latest/download/panel.tar.gz | sudo tar -xzv
 ```
 
-```
+```bash
 curl -sS https://getcomposer.org/installer | sudo php -- --install-dir=/usr/local/bin --filename=composer
-```
-
-```
 sudo COMPOSER_ALLOW_SUPERUSER=1 composer install --no-dev --optimize-autoloader
 ```
 
-```
+---
+
+## 🔐 2. SSL Sertifikası Oluşturma
+
+```bash
 mkdir /etc/certs
 cd /etc/certs
-```
-```
 openssl req -new -newkey rsa:4096 -days 3650 -nodes -x509 -subj "/C=NA/ST=NA/L=NA/O=NA/CN=Generic SSL Certificate" -keyout privkey.pem -out fullchain.pem
 ```
 
-```
+---
+
+## 🌐 3. NGINX Yapılandırması
+
+```bash
 sudo rm /etc/nginx/sites-enabled/default
+nano /etc/nginx/sites-available/pelican.conf
 ```
 
-```
-nano /etc/nginx/sites-available/pelican.conf  
-```
+### İçeriği yapıştır:
 
-## Copy and Paste this
-```
+```nginx
 server_tokens off;
 
 server {
@@ -69,7 +62,6 @@ server {
     access_log /var/log/nginx/pelican.app-access.log;
     error_log  /var/log/nginx/pelican.app-error.log error;
 
-    # allow larger file uploads and longer script runtimes
     client_max_body_size 100m;
     client_body_timeout 120s;
 
@@ -82,8 +74,6 @@ server {
     ssl_ciphers "ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384";
     ssl_prefer_server_ciphers on;
 
-    # See https://hstspreload.org/ before uncommenting the line below.
-    # add_header Strict-Transport-Security "max-age=15768000; preload;";
     add_header X-Content-Type-Options nosniff;
     add_header X-XSS-Protection "1; mode=block";
     add_header X-Robots-Tag none;
@@ -118,121 +108,124 @@ server {
 }
 ```
 
-```
+```bash
 sudo ln -s /etc/nginx/sites-available/pelican.conf /etc/nginx/sites-enabled/pelican.conf
-```
-
-```
 sudo systemctl restart nginx
 ```
 
-```
+---
+
+## ⚙️ 4. Panel Ortam Ayarları
+
+```bash
 cd /var/www/pelican
 php artisan p:environment:setup
-```
-
-```
 sudo chmod -R 755 storage/* bootstrap/cache/
 sudo chown -R www-data:www-data /var/www/pelican
 ```
 
-```
+---
+
+## 🐳 5. Docker Kurulumu
+
+```bash
 curl -sSL https://get.docker.com/ | CHANNEL=stable sudo sh
 ```
 
-
-# 🌐 Cloudflare Zero Trust Tunnel Kurulumu (Docker ile)
-
-## 1. Cloudflare Zero Trust Paneli Üzerinden Tünel Oluşturma
-
-1. Giriş yap: `Cloudflare > Zero Trust > Networks > Tunnels`
-2. `Create Tunnel` seçeneğini seç.
-3. Tünel ismini belirle ("Cloudflared" gibi)
-4. **Docker** seçeneğini seç.
-5. Sana verilen **docker komutunu kopyala**.
-6. Sunucunda bu komutu çalıştır:
-
-   ```bash
-   docker run ...
-   ```
-7. Cloudflare panelinde "Connected" durumu görünüyorsa:
-
-   * `CTRL+C` ile işlemi durdur.
-   * Aynı komutu tekrar yaz, başına şunu ekle:
-
-     ```bash
-     docker run -d --restart unless-stopped ...
-     ```
-8. Tekrar çalıştır ve panelden bağlantıyı kontrol et.
-
 ---
 
-## 2. Subdomain Ayarları
+## 🌐 6. Cloudflare Tunnel Kurulumu (Docker)
 
-1. **Next** butonuna tıkla.
-2. Subdomain ismini belirle ("panel" gibi).
-3. Domain seç ("domain.com" gibi).
-4. **Type**: `HTTPS`
-5. **URL**: Sunucu IP adresi
-6. **Additional Application Settings** içinden:
+1. Cloudflare > Zero Trust > Networks > Tunnels > Create Tunnel
+2. Tünel ismini belirle
+3. Docker seç, komutu kopyala:
 
-   * `No TLS Verify` seçeneğini **aktif et**.
-7. `Save Tunnel` ile işlemi tamamla.
-
----
-
-## 3. Kurulum Arayüzü
-
-1. Tarayıcıdan şu adrese git:
-   `https://subdomain.domain.com/installer`
-2. Adımlar:
-
-   * **Next**
-   * **Create User**
-   * **Next (sqlite)**
-   * **Next (filesystem)**
-   * **Next (database)**
-     İki komutu kopyala ve sunucuda çalıştır. Ardından **Check** butonuna tıkla.
-   * **Finish** ile tamamla.
-
----
-
-## 4. Node Ekleme
-
-1. `Nodes > New Node` menüden gir.
-2. Node ismini yaz ("node.domain.com" gibi).
-3. `Create Node`, sonra `Edit Node` seç.
-4. `Configuration File` sekmesine geç.
-5. Yapılandırma dosyasını kopyala.
-
-
+```bash
+docker run ...
 ```
+
+4. Bağlantı geldikten sonra işlemi durdur:
+
+```bash
+CTRL+C
+```
+
+5. Arka planda kalıcı çalıştır:
+
+```bash
+docker run -d --restart unless-stopped ...
+```
+
+6. Durum "Connected" ise Next > Subdomain ayarlarına geç.
+
+---
+
+## 🌍 7. Subdomain Ayarları
+
+* Subdomain: `panel.domain.com`
+* Type: `HTTPS`
+* URL: `Server IP`
+* No TLS Verify: **Aktif Et**
+* Save Tunnel
+
+---
+
+## 🧩 8. Pelican Web Kurulumu
+
+Tarayıcıdan aç:
+
+```bash
+https://panel.domain.com/installer
+```
+
+Adımlar:
+
+* Next
+* Create User
+* Next (sqlite)
+* Next (filesystem)
+* Next (database) → Komutları çalıştır, Check butonuna bas
+* Finish
+
+---
+
+## 🧱 9. Node Kurulumu
+
+1. Panel > Nodes > New Node
+2. Node adı: `node.domain.com`
+3. Create > Edit > Configuration File kısmına geç. Sonrasında oradaki içerik kopyalanacak ve aşağıdaki dosyaya yapıştırılacak:
+
+```bash
 mkdir /etc/pelican
 nano /etc/pelican/config.yml
 ```
 
-Paste > Edit this lines like this >
-   ``` 
-    cert: /etc/certs/fullchain.pem;
-    key: /etc/certs/privkey.pem;
-   ```
-Save & Exit
+Yapılandırmaya şu satırları ekle:
 
-
+```yaml
+cert: /etc/certs/fullchain.pem
+key: /etc/certs/privkey.pem
 ```
+
+Kaydet, çık.
+
+---
+
+## 🐦 10. Wings Kurulumu
+
+```bash
 sudo mkdir -p /etc/pelican /var/run/wings
-sudo curl -L -o /usr/local/bin/wings "https://github.com/pelican-dev/wings/releases/latest/download/wings_linux_$([[ "$(uname -m)" == "x86_64" ]] && echo "amd64" || echo "arm64")"
+sudo curl -L -o /usr/local/bin/wings "https://github.com/pelican-dev/wings/releases/latest/download/wings_linux_$( [[ "$(uname -m)" == "x86_64" ]] && echo "amd64" || echo "arm64")"
 sudo chmod u+x /usr/local/bin/wings
-
 ```
 
-```
+```bash
 nano /etc/systemd/system/wings.service
 ```
 
-## Copy and Paste this
+İçeriği yapıştır:
 
-```
+```ini
 [Unit]
 Description=Wings Daemon
 After=docker.service
@@ -254,12 +247,27 @@ RestartSec=5s
 WantedBy=multi-user.target
 ```
 
-Paste > Save & Exit >
+Kaydet, çık ve çalıştır:
 
-```
+```bash
 sudo systemctl enable --now wings
 ```
 
-Goto Cloudflare Tunnel > Edit > Public Hostname > Add hostname > set subdomain "node" > select domain > service type HTTPS, url serverIP:8080 > No TLS Verify set to open > SAVE
+---
 
-Goto Panel > Edit Node > Basic Settings > Set to Port ="443" > Save > check Health
+## 🌐 11. Cloudflare Üzerinden Node Yayınlama
+
+Cloudflare Tunnel > Edit > Public Hostname > Add Hostname:
+
+* Subdomain: `node`
+* Domain: domain.com
+* Type: `HTTPS`
+* URL: `Server IP:8080`
+* No TLS Verify: Açık
+* Save
+
+---
+
+## 🔧 12. Node Ayarları Sonrası
+
+Panel > Edit Node > Basic Settings > Port: `443` olarak ayarla > Save > Health kontrolü yap ✅
