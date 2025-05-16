@@ -1,8 +1,14 @@
+# Pelican Panel Install
+
+```
 apt update -y && apt upgrade -y
+```
 
+```
 add-apt-repository ppa:ondrej/php
+```
 
-apt install php8.4 php8.4-{gd,mysql,mbstring,bcmath,xml,curl,zip,intl,sqlite3,fpm}
+`apt install php8.4 php8.4-{gd,mysql,mbstring,bcmath,xml,curl,zip,intl,sqlite3,fpm}`
 
 apt install nginx -y
 
@@ -91,17 +97,27 @@ server {
 }
 ```
 
+```
 sudo ln -s /etc/nginx/sites-available/pelican.conf /etc/nginx/sites-enabled/pelican.conf
+```
 
+```
 sudo systemctl restart nginx
+```
 
+```
 cd /var/www/pelican
 php artisan p:environment:setup
+```
 
+```
 sudo chmod -R 755 storage/* bootstrap/cache/
 sudo chown -R www-data:www-data /var/www/pelican
+```
 
+```
 curl -sSL https://get.docker.com/ | CHANNEL=stable sudo sh
+```
 
 
 Goto cloudflare > zero trust > Networks > Tunnels > Select Cloudflared > Name it > Click docker > copy command > run command > if has "connected status" on site > ctrl+c > paste command again and add after the "docker run" -d --restart unless-stopped "rest of command" > run it > check status on site > click next > set name of subdomain and select domain, set type "HTTPS" url "serverIP" and enable "No TLS Verify" on additional app setttings > Click save tunnel > goto subdomain.domain.com/installer > Next-Create User-Next(sqlite)-Next(filesystem)-Next(database)(Copy and run this two commands and check button)-Finish > 
@@ -109,8 +125,10 @@ Goto cloudflare > zero trust > Networks > Tunnels > Select Cloudflared > Name it
 Click Nodes > New Node > node.domain.com > Create Node 
 Edit Node > Configuration File > Copy
 
+```
 mkdir /etc/pelican
 nano /etc/pelican/config.yml
+```
 
 Paste > Edit this lines like this >
    ``` 
@@ -120,12 +138,16 @@ Paste > Edit this lines like this >
 Save & Exit
 
 
+```
 sudo mkdir -p /etc/pelican /var/run/wings
 sudo curl -L -o /usr/local/bin/wings "https://github.com/pelican-dev/wings/releases/latest/download/wings_linux_$([[ "$(uname -m)" == "x86_64" ]] && echo "amd64" || echo "arm64")"
 sudo chmod u+x /usr/local/bin/wings
 
+```
 
-nano /etc/systemd/system/wings.service  >
+```
+nano /etc/systemd/system/wings.service
+```
 
 [Unit]
 Description=Wings Daemon
