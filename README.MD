@@ -8,27 +8,48 @@ apt update -y && apt upgrade -y
 add-apt-repository ppa:ondrej/php
 ```
 
-`apt install php8.4 php8.4-{gd,mysql,mbstring,bcmath,xml,curl,zip,intl,sqlite3,fpm}`
+```
+apt install php8.4 php8.4-{gd,mysql,mbstring,bcmath,xml,curl,zip,intl,sqlite3,fpm}
+```
 
+```
 apt install nginx -y
+```
 
+```
 sudo mkdir -p /var/www/pelican
 cd /var/www/pelican
+```
 
+```
 curl -L https://github.com/pelican-dev/panel/releases/latest/download/panel.tar.gz | sudo tar -xzv
+```
 
+```
 curl -sS https://getcomposer.org/installer | sudo php -- --install-dir=/usr/local/bin --filename=composer
+```
 
+```
 sudo COMPOSER_ALLOW_SUPERUSER=1 composer install --no-dev --optimize-autoloader
+```
 
+```
 mkdir /etc/certs
 cd /etc/certs
+```
+```
 openssl req -new -newkey rsa:4096 -days 3650 -nodes -x509 -subj "/C=NA/ST=NA/L=NA/O=NA/CN=Generic SSL Certificate" -keyout privkey.pem -out fullchain.pem
+```
 
+```
 sudo rm /etc/nginx/sites-enabled/default
+```
 
+```
 nano /etc/nginx/sites-available/pelican.conf  
+```
 
+## Copy and Paste this
 ```
 server_tokens off;
 
@@ -149,6 +170,9 @@ sudo chmod u+x /usr/local/bin/wings
 nano /etc/systemd/system/wings.service
 ```
 
+## Copy and Paste this
+
+```
 [Unit]
 Description=Wings Daemon
 After=docker.service
@@ -168,10 +192,13 @@ RestartSec=5s
 
 [Install]
 WantedBy=multi-user.target
+```
 
 Paste > Save & Exit >
 
+```
 sudo systemctl enable --now wings
+```
 
 Goto Cloudflare Tunnel > Edit > Public Hostname > Add hostname > set subdomain "node" > select domain > service type HTTPS, url serverIP:8080 > No TLS Verify set to open > SAVE
 
