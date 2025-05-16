@@ -141,10 +141,70 @@ curl -sSL https://get.docker.com/ | CHANNEL=stable sudo sh
 ```
 
 
-Goto cloudflare > zero trust > Networks > Tunnels > Select Cloudflared > Name it > Click docker > copy command > run command > if has "connected status" on site > ctrl+c > paste command again and add after the "docker run" -d --restart unless-stopped "rest of command" > run it > check status on site > click next > set name of subdomain and select domain, set type "HTTPS" url "serverIP" and enable "No TLS Verify" on additional app setttings > Click save tunnel > goto subdomain.domain.com/installer > Next-Create User-Next(sqlite)-Next(filesystem)-Next(database)(Copy and run this two commands and check button)-Finish > 
+# 🌐 Cloudflare Zero Trust Tunnel Kurulumu (Docker ile)
 
-Click Nodes > New Node > node.domain.com > Create Node 
-Edit Node > Configuration File > Copy
+## 1. Cloudflare Zero Trust Paneli Üzerinden Tünel Oluşturma
+
+1. Giriş yap: `Cloudflare > Zero Trust > Networks > Tunnels`
+2. `Create Tunnel` seçeneğini seç.
+3. Tünel ismini belirle ("Cloudflared" gibi)
+4. **Docker** seçeneğini seç.
+5. Sana verilen **docker komutunu kopyala**.
+6. Sunucunda bu komutu çalıştır:
+
+   ```bash
+   docker run ...
+   ```
+7. Cloudflare panelinde "Connected" durumu görünüyorsa:
+
+   * `CTRL+C` ile işlemi durdur.
+   * Aynı komutu tekrar yaz, başına şunu ekle:
+
+     ```bash
+     docker run -d --restart unless-stopped ...
+     ```
+8. Tekrar çalıştır ve panelden bağlantıyı kontrol et.
+
+---
+
+## 2. Subdomain Ayarları
+
+1. **Next** butonuna tıkla.
+2. Subdomain ismini belirle ("panel" gibi).
+3. Domain seç ("domain.com" gibi).
+4. **Type**: `HTTPS`
+5. **URL**: Sunucu IP adresi
+6. **Additional Application Settings** içinden:
+
+   * `No TLS Verify` seçeneğini **aktif et**.
+7. `Save Tunnel` ile işlemi tamamla.
+
+---
+
+## 3. Kurulum Arayüzü
+
+1. Tarayıcıdan şu adrese git:
+   `https://subdomain.domain.com/installer`
+2. Adımlar:
+
+   * **Next**
+   * **Create User**
+   * **Next (sqlite)**
+   * **Next (filesystem)**
+   * **Next (database)**
+     İki komutu kopyala ve sunucuda çalıştır. Ardından **Check** butonuna tıkla.
+   * **Finish** ile tamamla.
+
+---
+
+## 4. Node Ekleme
+
+1. `Nodes > New Node` menüden gir.
+2. Node ismini yaz ("node.domain.com" gibi).
+3. `Create Node`, sonra `Edit Node` seç.
+4. `Configuration File` sekmesine geç.
+5. Yapılandırma dosyasını kopyala.
+
 
 ```
 mkdir /etc/pelican
